@@ -1,0 +1,1 @@
+ovc quantized_model_int8.onnx     --output_model openvino_quantized/quantized_model_int8.xml
