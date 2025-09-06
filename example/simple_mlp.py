@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
+from torchsummary import summary
 import matplotlib.pyplot as plt
 
 # 1. 数据加载与预处理
@@ -38,6 +39,10 @@ class MLP(nn.Module):
         return x
 
 model = MLP()
+
+print("----------model----------")
+print(model)
+print("----------model----------")
 
 # 3. 定义损失函数和优化器
 criterion = nn.CrossEntropyLoss()        # 适用于多分类
@@ -83,6 +88,8 @@ if __name__ == '__main__':
     data, target = test_dataset[0]
     output = model(data.unsqueeze(0))
     pred = output.argmax().item()
+
+    summary(model, input_size=(1, 28, 28))
 
     plt.imshow(data.numpy().squeeze(), cmap='gray')
     plt.title(f'Label: {target}, Predicted: {pred}')
