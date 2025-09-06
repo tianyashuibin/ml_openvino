@@ -2,7 +2,8 @@
 import onnx
 
 # 加载量化后的 ONNX 模型
-model = onnx.load("quantized_model_int8.onnx")
+#model = onnx.load("quantized_model_int8.onnx")
+model = onnx.load("quantized_static_model_int8.onnx")
 
 # 遍历所有 initializer（即权重）
 for init in model.graph.initializer:
