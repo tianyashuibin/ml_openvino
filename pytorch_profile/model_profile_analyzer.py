@@ -1,8 +1,8 @@
 import torch
+import time
 from torch.profiler import profile, record_function, ProfilerActivity
 
 torch.backends.quantized.engine = 'qnnpack'
-
 # 加载 TorchScript 模型
 model = torch.jit.load('/Users/minim4/syncGN/mmoe_pairwise/model_pt/gn/model_pairwise_weekly_nondcn.pt')
 
@@ -21,23 +21,29 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = model.to(device)
 inputs = inputs.to(device)
 
+# ----------------------------
+# 预热：运行几次推理，让系统“热起来”
+# ----------------------------
+with torch.no_grad():
+    for i in range(10):  # 通常 3~5 次足够
+        start = time.time()
+        outputs = model(inputs)
+        print(f"Run {i+1}: {(time.time() - start)*1000:.2f} ms")
+print("Warm-up done.")
+
 # 使用 Profiler 分析性能
 with profile(
-    schedule=torch.profiler.schedule(
-        wait=3, warmup=3, active=20
-    ),
     # activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],  # 分析 CPU 和 GPU
     activities=[ProfilerActivity.CPU],
     record_shapes=False,  # 记录张量形状
     profile_memory=True,  # 记录内存使用
-    with_stack=False,  # 记录调用栈
+    with_stack=True,  # 记录调用栈
 ) as prof:
-    with record_function("model_inference"):  # 标记推理部分
-        with torch.no_grad():  # 禁用梯度计算
-            for step in range(26):
-                if step >= 3:
-                    prof.step()
-            outputs = model(inputs)
+    with record_function("model_inference"):
+        for step in range(10):
+            with torch.no_grad():
+                outputs = model(inputs)
+            prof.step()
 
 # 打印性能分析结果
 print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))

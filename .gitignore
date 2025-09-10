@@ -2,3 +2,7 @@
 
 *-ubyte
 *.gz
+
+pytorch_profile/trace.json
+.DS_Store
+
