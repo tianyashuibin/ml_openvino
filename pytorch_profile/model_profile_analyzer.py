@@ -58,7 +58,7 @@ with profile(
     profile_memory=True,  # 记录内存使用
     with_stack=True,  # 记录调用栈
 ) as prof:
-    for step in range(10):
+    for step in range(1):
         with record_function("model_inference"):
             with torch.no_grad():
                 outputs = model(inputs)
