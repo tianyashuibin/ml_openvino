@@ -39,11 +39,11 @@ with profile(
     profile_memory=True,  # 记录内存使用
     with_stack=True,  # 记录调用栈
 ) as prof:
-    with record_function("model_inference"):
-        for step in range(10):
+    for step in range(10):
+        with record_function("model_inference"):
             with torch.no_grad():
                 outputs = model(inputs)
-            prof.step()
+        prof.step()
 
 # 打印性能分析结果
 print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
